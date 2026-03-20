@@ -1,5 +1,8 @@
 import { Controller, Post, Body } from '@nestjs/common';
 import { PlayerService } from './player.service';
+import { UseGuards } from '@nestjs/common';
+import { JwtAuthGuard } from '../auth/jwt/jwt.guard';
+import { RolesGuard } from '../auth/roles/roles.guard';
 
 @Controller('player')
 export class PlayerController {
@@ -11,6 +14,7 @@ export class PlayerController {
   }
 
   @Post('add-balance')
+  @UseGuards(JwtAuthGuard, RolesGuard)
   addBalance(@Body() body: { playerId: string; amount: number }) {
     return this.playerService.addBalance(body.playerId, body.amount);
   }
