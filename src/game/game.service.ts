@@ -5,18 +5,17 @@ import { Card, GameState, HandResult, PlayerState, rankValue } from './types';
 @Injectable()
 export class GameService {
     createGame(playerIds: string[]) {
-        let deck = createDeck();
-        deck = shuffle(deck);
+        let deck = shuffle(createDeck());
 
-        // 플레이어 초기화
         const players: PlayerState[] = playerIds.map(id => ({
             id,
             hiddenCards: [],
             openCards: [],
             folded: false,
+            balance: 10000,   // 일단 테스트용
+            currentBet: 0,
         }));
 
-        // 2장 hidden + 1장 open
         for (const player of players) {
             player.hiddenCards.push(draw(deck));
             player.hiddenCards.push(draw(deck));
@@ -27,7 +26,9 @@ export class GameService {
             players,
             deck,
             currentTurn: 0,
-            phase: 'THIRD_STREET', // 첫 단계
+            phase: 'THIRD_STREET',
+            pot: 0,
+            baseBet: 1000, // 💡 방 생성 시 설정 가능
         };
     }
 
@@ -60,6 +61,23 @@ export class GameService {
             default:
                 break;
         }
+
+        return game;
+    }
+
+    bet(game: GameState, playerId: string, percent: number) {
+        const player = game.players.find(p => p.id === playerId);
+        if (!player) throw new Error('Player not found');
+
+        const amount = this.calculateBet(game.baseBet, percent);
+
+        if (player.balance < amount) {
+            throw new Error('Insufficient balance');
+        }
+
+        player.balance -= amount;
+        player.currentBet += amount;
+        game.pot += amount;
 
         return game;
     }
@@ -164,4 +182,10 @@ export class GameService {
 
         return best;
     }
+
+    calculateBet(baseBet: number, percent: number): number {
+        return Math.floor(baseBet * percent);
+    }
+
+
 }

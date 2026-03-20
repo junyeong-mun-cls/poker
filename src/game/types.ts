@@ -3,14 +3,19 @@ export interface PlayerState {
     hiddenCards: Card[];
     openCards: Card[];
     folded: boolean;
-}
 
+    balance: number;     // 가진 돈
+    currentBet: number;  // 이번 라운드에서 낸 돈
+}
 
 export interface GameState {
     players: PlayerState[];
     deck: Card[];
     currentTurn: number;
     phase: GamePhase;
+
+    pot: number;         // 총 판돈
+    baseBet: number;     // 방에서 설정한 기준 금액
 }
 
 export type GamePhase =
