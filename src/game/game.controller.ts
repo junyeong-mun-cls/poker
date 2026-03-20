@@ -9,4 +9,9 @@ export class GameController {
     startGame(@Body() body: { playerIds: string[] }) {
         return this.gameService.createGame(body.playerIds);
     }
+
+    @Post('next')
+    next(@Body() body: { game }) {
+        return this.gameService.nextPhase(body.game);
+    }
 }
